@@ -314,6 +314,8 @@ def convert_dnf_to_partial_state(
     pos = pddl.state_index.get_state(s_pre_pos)
     neg = pddl.state_index.get_state(s_pre_neg)
     pos, neg = pddl.consistent_state(pos, neg)
+    pos = {item.replace('hand', "a") if 'hand' in item else item for item in pos}
+    neg = {item.replace('hand', "a") if 'hand' in item else item for item in neg}
     s_pre_pos[:] = pddl.state_index.get_indexed_state(pos)
     s_pre_neg[:] = pddl.state_index.get_indexed_state(neg)
 
@@ -361,6 +363,8 @@ def convert_dnf_to_partial_state(
     pos = pddl.state_index.get_state(s_post_pos)
     neg = pddl.state_index.get_state(s_post_neg)
     pos, neg = pddl.consistent_state(pos, neg)
+    pos = {item.replace('hand', "a") if 'hand' in item else item for item in pos}
+    neg = {item.replace('hand', "a") if 'hand' in item else item for item in neg}
     s_post_pos[:] = pddl.state_index.get_indexed_state(pos)
     s_post_neg[:] = pddl.state_index.get_indexed_state(neg)
 

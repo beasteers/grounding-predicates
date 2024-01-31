@@ -69,12 +69,18 @@ class VideoLabel:
         # Load data.
         with h5py.File(self._labels._file, "r") as f:
             grp = f["videos"][str(id_video)]
+            # print("grpgrp", grp.keys())
             self._id_action = int(grp.attrs["id_action"])
             self._objects = list(grp.attrs["objects"])
             self._keyframes = np.array(grp["keyframes"])
-            self._pre = np.array(grp["pre"])
-            self._post = np.array(grp["post"])
+            if "pre" in grp.keys() and "post" in grp.keys() and "boxes" in grp.keys():
+                self._pre = np.array(grp["pre"])
+                self._post = np.array(grp["post"])
             self._boxes = np.array(grp["boxes"])
+            #else:
+            #    self._pre = None
+            #    self._post = None
+            #    self._boxes = None
 
     @property
     def id_video(self) -> int:
@@ -260,3 +266,4 @@ class Labels:
     .actions: [<ActionLabel>, ...]
     .videos: <VideoLabels>
 }"""
+
