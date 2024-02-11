@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 import mediapipe as mp
@@ -11,7 +12,7 @@ from mediapipe.python.solutions import hands as mp_hands
 
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5):
-        base_options = python.BaseOptions(model_asset_path='/scratch/data/repos/grounding-predicates/apps/hand_landmarker.task')
+        base_options = python.BaseOptions(model_asset_path=os.path.join(os.path.dirname(__file__), 'hand_landmarker.task'))
         options = vision.HandLandmarkerOptions(base_options=base_options, num_hands=2)
         self.detector = vision.HandLandmarker.create_from_options(options)
 
@@ -22,8 +23,10 @@ class HandDetector:
         pass    
 
     def detect(self, img):
-        print("detecting image")
-        return self.detector.process(img)
+        print("detecting image", type(img), img.shape)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
+        r = self.detector.detect(mp_image)
+        return [r]
 
 class Hand:
     def __init__(self, hand_landmarks):

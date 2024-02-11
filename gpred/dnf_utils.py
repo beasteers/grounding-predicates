@@ -199,6 +199,14 @@ def compute_max_num_conjunctions(pddl: symbolic.Pddl, actions: Iterable[str]) ->
     return max_num_conj
 
 
+def get_indexed_state(index, states):
+    xs = np.zeros(len(index), dtype=bool)
+    for i in range(len(index)):
+        state = index.get_proposition(i)
+        if state in states:
+            xs[i] = True
+    return xs
+
 @functools.lru_cache(maxsize=1024 * 1024)
 def get_dnf(
     pddl: symbolic.Pddl,
@@ -249,8 +257,10 @@ def get_dnf(
         for j, conj in enumerate(conjunctions):
             s_pos = filter_props(conj.pos)
             s_neg = filter_props(conj.neg)
-            idx[0, :, j] = pddl.state_index.get_indexed_state(s_pos)
-            idx[1, :, j] = pddl.state_index.get_indexed_state(s_neg)
+            # idx[0, :, j] = pddl.state_index.get_indexed_state(s_pos)
+            # idx[1, :, j] = pddl.state_index.get_indexed_state(s_neg)
+            idx[0, :, j] = get_indexed_state(pddl.state_index, s_pos)
+            idx[1, :, j] = get_indexed_state(pddl.state_index, s_neg)
 
         # Create mask over conjunctions
         mask = np.zeros((M,), dtype=bool)
@@ -316,8 +326,8 @@ def convert_dnf_to_partial_state(
     pos, neg = pddl.consistent_state(pos, neg)
     pos = {item.replace('hand', "a") if 'hand' in item else item for item in pos}
     neg = {item.replace('hand', "a") if 'hand' in item else item for item in neg}
-    s_pre_pos[:] = pddl.state_index.get_indexed_state(pos)
-    s_pre_neg[:] = pddl.state_index.get_indexed_state(neg)
+    s_pre_pos[:] = get_indexed_state(pddl.state_index, pos)
+    s_pre_neg[:] = get_indexed_state(pddl.state_index, neg)
 
     # Expand pos/neg post dnfs
     # [N, M]
@@ -365,8 +375,8 @@ def convert_dnf_to_partial_state(
     pos, neg = pddl.consistent_state(pos, neg)
     pos = {item.replace('hand', "a") if 'hand' in item else item for item in pos}
     neg = {item.replace('hand', "a") if 'hand' in item else item for item in neg}
-    s_post_pos[:] = pddl.state_index.get_indexed_state(pos)
-    s_post_neg[:] = pddl.state_index.get_indexed_state(neg)
+    s_post_pos[:] = get_indexed_state(pddl.state_index, pos)
+    s_post_neg[:] = get_indexed_state(pddl.state_index, neg)
 
     # Apply additional static post propositions to pre state
     # [N]
@@ -439,7 +449,7 @@ def get_negative_props(
         args = parse_args(prop)
         if set(args) - used_objects:
             neg_props.append(prop)
-    return pddl.state_index.get_indexed_state(set(neg_props))
+    return get_indexed_state(pddl.state_index, set(neg_props))
 
 
 def get_used_props(pddl: symbolic.Pddl, boxes: np.ndarray) -> np.ndarray:

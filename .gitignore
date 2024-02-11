@@ -3,3 +3,15 @@
 *.pyc
 build/
 lib/
+
+*.ext3
+*.sifpath
+sing
+singrw
+
+*.hdf5
+*.pkl
+
+*.log
+*.out
+*.err
