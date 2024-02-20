@@ -23,15 +23,30 @@ class HandDetector:
         pass    
 
     def detect(self, img):
-        print("detecting image", type(img), img.shape)
+        # print("detecting image", type(img), img.shape)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
         r = self.detector.detect(mp_image)
-        return [r]
+        return r
 
 class Hand:
     def __init__(self, hand_landmarks):
         # Store the hand landmarks
-        self.hand_landmarks = hand_landmarks
+        # self.hand_landmarks = hand_landmarks
+        # from IPython import embed
+        # embed()
+        # if not isinstance(hand_landmarks, landmark_pb2.NormalizedLandmarkList):
+        #     hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+        #     hand_landmarks_proto.landmark.extend()
+        # else:
+        #     hand_landmarks_proto = hand_landmarks[0]
+        # print(hand_landmarks)
+        self.hand_landmarks = [
+            # landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) 
+            landmark_pb2.NormalizedLandmark(x=l.x, y=l.y, z=l.z)
+            if hasattr(l, 'x') else
+            landmark_pb2.NormalizedLandmark(x=l[0], y=l[1], z=l[2])
+            for l in hand_landmarks
+        ]
         self.image_height = 240
         self.image_width = 427
 
@@ -39,7 +54,7 @@ class Hand:
         # Extract and return the fingertip landmarks
         fingertips = []
         for i in [mp_hands.HandLandmark.THUMB_TIP, mp_hands.HandLandmark.INDEX_FINGER_TIP, mp_hands.HandLandmark.MIDDLE_FINGER_TIP, mp_hands.HandLandmark.RING_FINGER_TIP, mp_hands.HandLandmark.PINKY_TIP]:
-            fingertips.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height])[np.newaxis, :])
+            fingertips.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height]))
         return np.array(fingertips)
 
     def fingers(self):
@@ -52,14 +67,14 @@ class Hand:
         pinky = [mp_hands.HandLandmark.PINKY_MCP, mp_hands.HandLandmark.PINKY_PIP, mp_hands.HandLandmark.PINKY_DIP, mp_hands.HandLandmark.PINKY_TIP]
         for finger in [thumb, index, middle, ring, pinky]:
           for i in finger:
-            fingers.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height])[np.newaxis, :])
+            fingers.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height]))
         return np.array(fingers)
 
     def palm(self):
         # Extract and return the palm landmarks
         palm = []
         for i in [mp_hands.HandLandmark.WRIST, mp_hands.HandLandmark.THUMB_MCP, mp_hands.HandLandmark.INDEX_FINGER_MCP, mp_hands.HandLandmark.MIDDLE_FINGER_MCP, mp_hands.HandLandmark.RING_FINGER_MCP, mp_hands.HandLandmark.PINKY_MCP]:
-            palm.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height])[np.newaxis, :])
+            palm.append(np.array([self.hand_landmarks[i].x*self.image_width,self.hand_landmarks[i].y*self.image_height]))
         return np.array(palm)
 
 

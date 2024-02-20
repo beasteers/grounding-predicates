@@ -199,6 +199,9 @@ def compute_max_num_conjunctions(pddl: symbolic.Pddl, actions: Iterable[str]) ->
     return max_num_conj
 
 
+def get_index_propositions(index):
+    return [index.get_proposition(i) for i in range(len(index))]
+
 def get_indexed_state(index, states):
     xs = np.zeros(len(index), dtype=bool)
     for i in range(len(index)):
